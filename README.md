@@ -72,6 +72,7 @@ npx cypress run
 npx cypress open
 
 ```
+---
 
 ### 🔧 Tools Used
 Cypress
@@ -82,6 +83,7 @@ JavaScript
 
 JSON Fixtures for POM and test data
 
+---
 
 ### 📌 Notes
 No API tests are included in this project.
