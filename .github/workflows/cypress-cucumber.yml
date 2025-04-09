@@ -15,21 +15,13 @@ jobs:
       - name: 📥 Checkout do código
         uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: 📦 Instalar dependências
+      - name: 📦 Instalar dependências (somente o necessário)
         run: npm ci
-
-      - name: ✅ Verificar instalação do Cypress
-        run: npx cypress verify
 
       - name: ▶️ Rodar testes de API
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.{js,ts}"
 
-      - name: 📄 Publicar artefato dos testes de API (screenshots e vídeos)
+      - name: 📄 Publicar artefatos dos testes de API (screenshots e vídeos)
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -61,7 +53,7 @@ jobs:
       - name: ▶️ Rodar testes E2E (Cucumber)
         run: npx cypress run --spec "**/*.feature"
 
-      - name: 📄 Publicar artefato dos testes E2E (screenshots e vídeos)
+      - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
         with:
