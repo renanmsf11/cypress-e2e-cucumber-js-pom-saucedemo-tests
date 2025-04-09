@@ -6,7 +6,7 @@ This repository contains a suite of **E2E tests** using the **Cypress** framewor
 ---
 
 ## 🧱 Project Structure
-`
+```
 cypress/
 ├── e2e/
 │   ├── features/              # Gherkin feature files
@@ -24,7 +24,7 @@ cypress.config.js              # Cypress configuration
 package.json                   # Project dependencies and scripts
 package-lock.json              # Lock file
 README.md               
-`
+```
 
 
 ---
@@ -78,6 +78,7 @@ Cucumber (Gherkin Syntax) via cypress-cucumber-preprocessor
 JavaScript
 
 JSON Fixtures for POM and test data
+```
 
 📌 Notes
 No API tests are included in this project.
@@ -85,6 +86,8 @@ No API tests are included in this project.
 POMs are implemented using .json files for ease of access and modularity.
 
 Gherkin syntax provides a clear and human-readable way to define test scenarios.
+
+---
 
 📂 Selector Organization
 All selectors are centralized within the POMs:
