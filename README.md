@@ -6,7 +6,7 @@ This repository contains a suite of **E2E tests** using the **Cypress** framewor
 ---
 
 ## 🧱 Project Structure
-
+`
 cypress/
 ├── e2e/
 │   ├── features/              # Gherkin feature files
@@ -24,7 +24,7 @@ cypress.config.js              # Cypress configuration
 package.json                   # Project dependencies and scripts
 package-lock.json              # Lock file
 README.md               
-
+`
 
 
 ---
