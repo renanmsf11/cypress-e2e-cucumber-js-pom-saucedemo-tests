@@ -73,7 +73,7 @@ npx cypress open
 
 ```
 
-###🔧 Tools Used
+### 🔧 Tools Used
 Cypress
 
 Cucumber (Gherkin Syntax) via cypress-cucumber-preprocessor
@@ -83,7 +83,7 @@ JavaScript
 JSON Fixtures for POM and test data
 
 
-###📌 Notes
+### 📌 Notes
 No API tests are included in this project.
 
 POMs are implemented using .json files for ease of access and modularity.
@@ -92,7 +92,7 @@ Gherkin syntax provides a clear and human-readable way to define test scenarios.
 
 ---
 
-###📂 Selector Organization
+### 📂 Selector Organization
 All selectors are centralized within the POMs:
 
 pomLoginPage.json – login page selectors.
