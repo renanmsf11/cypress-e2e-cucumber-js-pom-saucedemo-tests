@@ -8,16 +8,22 @@ This repository contains a suite of **E2E tests** using the **Cypress** framewor
 ## 🧱 Project Structure
 
 cypress/
-├─ e2e
-├─── features/                 ->   # FEATURE FILES
-│   ├── loginPage.feature
-│   ├── productPage.feature
-├─── step-definitions/         ->   # TESTING COMMAND FILES
-│   ├── loginPage.js
-│   ├── productPage.js
-├─fixtures                     ->  # Page Object Model (POM)
-│  ├─ pomLoginPage.json
-│  ├─ pomProductPage.json
+├── e2e/
+│   ├── features/              # Gherkin feature files
+│   │   ├── loginPage.feature
+│   │   └── productPage.feature
+│   └── step-definitions/      # Step definitions matching each feature
+│       ├── loginPage.js
+│       └── productPage.js
+├── fixtures/                  # Page Object Model (POM) using JSON for selectors
+│   ├── pomLoginPage.json
+│   └── pomProductPage.json
+├── downloads/                 # Downloaded files (if any)
+├── support/                   # Cypress support files (e.g. commands, setup)
+cypress.config.js              # Cypress configuration
+package.json                   # Project dependencies and scripts
+package-lock.json              # Lock file
+README.md               
 
 
 
