@@ -26,4 +26,4 @@ jobs:
         run: npx cypress verify
 
       - name: Run Cypress tests
-        run: npm run cy:run
+        run: npx cypress run
