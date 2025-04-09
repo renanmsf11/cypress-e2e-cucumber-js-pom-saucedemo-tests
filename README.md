@@ -1,5 +1,4 @@
 # 💻 Automated Testing Project with Cypress + Cucumber
-![Cypress Tests](https://github.com/renanmsf11/playwright-api-e2e-TS-automation-serverest-tests/actions/workflows/cypress-cucumber.yml/badge.svg?branch=main)
 
 This repository contains a suite of **E2E tests** using the **Cypress** framework and **Cucumber (Gherkin)** syntax, for the SauceDemo web application.
 
