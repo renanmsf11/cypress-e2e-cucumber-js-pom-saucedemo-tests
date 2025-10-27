@@ -1,6 +1,5 @@
 name: Cypress Tests
 
-
 on:
   push:
     branches: [main]
@@ -54,9 +53,9 @@ jobs:
       - name: ▶️ Rodar testes E2E (Cucumber)
         run: npx cypress run --spec "**/*.feature"
 
-      - name: 🧩 Criar pasta de evidências
-        run: mkdir -p cypress/screenshots
-        
+      - name: 🧩 Criar pastas de artefatos
+        run: mkdir -p cypress/screenshots cypress/videos allure-results
+
       - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,3 +64,17 @@ jobs:
           path: |        
             cypress/screenshots
             cypress/videos
+
+      # 🧱 Geração do relatório Allure (HTML)
+      - name: 📊 Gerar relatório Allure
+        if: always()
+        run: |
+          npx allure generate allure-results --clean -o allure-report || echo "Nenhum resultado Allure encontrado"
+
+      # 📦 Publicar o relatório como artefato HTML
+      - name: 🗂️ Publicar relatório Allure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
