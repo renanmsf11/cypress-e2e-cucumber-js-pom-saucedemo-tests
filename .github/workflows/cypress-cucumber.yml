@@ -18,18 +18,18 @@ jobs:
     steps:
       - name: 📥 Checkout do código
         uses: actions/checkout@v4
-      
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: 📦 Instalar dependências
         run: npm ci
-      
+
       - name: ▶️ Rodar testes de API
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.{js,ts}"
-      
+
       - name: 📄 Publicar artefatos dos testes de API
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,31 +49,58 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - name: 📦 Instalar dependências
         run: npm ci
 
-      - name: 🛠️ Instalar dependências do sistema
-        run: sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-      
+      - name: 🛠️ Instalar dependências do sistema (resiliente)
+        run: |
+          set -eo pipefail
+          echo "Updating apt cache..."
+          sudo apt-get update -y
+
+          # Packages commonly required by Cypress; we check each one and only attempt to install if apt has a candidate.
+          PACKAGES=(libgtk2.0-0 libgtk-3-0 libgbm1 libnotify4 libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb)
+
+          for pkg in "${PACKAGES[@]}"; do
+            echo "----"
+            echo "Checking availability for package: $pkg"
+            # apt-cache policy prints "Candidate: (none)" when no candidate is available
+            if apt-cache policy "$pkg" 2>/dev/null | grep -q "Candidate:"; then
+              if apt-cache policy "$pkg" 2>/dev/null | grep -q "Candidate: (none)"; then
+                echo "Package $pkg has no candidate in apt repos on this runner — skipping."
+              else
+                echo "Package $pkg has candidate — installing (no-install-recommends)."
+                # install each package individually so failures for one don't abort the loop
+                sudo apt-get install -y --no-install-recommends "$pkg" || {
+                  echo "Install of $pkg failed; skipping and continuing."
+                }
+              fi
+            else
+              echo "apt-cache did not return Candidate information for $pkg — skipping."
+            fi
+          done
+
+          echo "System package install step complete."
+
       - name: ✅ Verificar instalação do Cypress
         run: npx cypress verify
-      
+
       - name: ▶️ Rodar testes E2E (Cucumber .feature)
         # Use xvfb-run to avoid display issues in headless CI environments and
         # run only feature files under cypress/e2e for clarity.
         run: |
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npx cypress run --spec "cypress/e2e/**/*.feature"
-      
+
       - name: 🧩 Criar pasta de evidências
         if: always()
         run: mkdir -p cypress/screenshots
-      
+
       - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
@@ -83,7 +110,7 @@ jobs:
             cypress/screenshots
             cypress/videos
           retention-days: 30
-      
+
       - name: 🧱 Gerar Allure Report (resiliente)
         if: always()
         run: |
@@ -100,7 +127,7 @@ jobs:
             </html>
             HTML
           fi
-      
+
       - name: 📦 Compactar relatório Allure
         if: always()
         run: |
@@ -110,7 +137,7 @@ jobs:
             echo "No allure-report directory to zip; creating empty zip placeholder."
             mkdir -p tmp-empty-report && zip -r allure-report.zip tmp-empty-report && rm -rf tmp-empty-report
           fi
-      
+
       - name: 📤 Upload do Allure Report ZIP
         if: always()
         uses: actions/upload-artifact@v4
@@ -118,7 +145,7 @@ jobs:
           name: allure-report-zip
           path: allure-report.zip
           retention-days: 30
-      
+
       - name: 🌐 Publicar Allure Report no GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
@@ -127,7 +154,7 @@ jobs:
           publish_dir: ./allure-report
           publish_branch: gh-pages
           force_orphan: true
-      
+
       - name: 📢 Mostrar URL do Report
         if: always()
         run: |
