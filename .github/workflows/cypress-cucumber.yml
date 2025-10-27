@@ -64,8 +64,11 @@ jobs:
       - name: ✅ Verificar instalação do Cypress
         run: npx cypress verify
       
-      - name: ▶️ Rodar testes E2E
-        run: npx cypress run --spec "**/*.feature"
+      - name: ▶️ Rodar testes E2E (Cucumber .feature)
+        # Use xvfb-run to avoid display issues in headless CI environments and
+        # run only feature files under cypress/e2e for clarity.
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" npx cypress run --spec "cypress/e2e/**/*.feature"
       
       - name: 🧩 Criar pasta de evidências
         if: always()
@@ -81,13 +84,32 @@ jobs:
             cypress/videos
           retention-days: 30
       
-      - name: 🧱 Gerar Allure Report
+      - name: 🧱 Gerar Allure Report (resiliente)
         if: always()
-        run: npx allure generate allure-results --clean -o allure-report
+        run: |
+          if [ -d allure-results ] && [ "$(ls -A allure-results)" ]; then
+            npx allure generate allure-results --clean -o allure-report
+          else
+            echo "No allure-results found; creating placeholder report so subsequent steps won't fail."
+            mkdir -p allure-report
+            cat > allure-report/index.html <<'HTML'
+            <!doctype html>
+            <html>
+              <head><meta charset="utf-8"><title>No Allure Results</title></head>
+              <body><h1>No Allure Results</h1><p>There were no allure-results produced in this run.</p></body>
+            </html>
+            HTML
+          fi
       
       - name: 📦 Compactar relatório Allure
         if: always()
-        run: zip -r allure-report.zip allure-report
+        run: |
+          if [ -d "allure-report" ]; then
+            zip -r allure-report.zip allure-report
+          else
+            echo "No allure-report directory to zip; creating empty zip placeholder."
+            mkdir -p tmp-empty-report && zip -r allure-report.zip tmp-empty-report && rm -rf tmp-empty-report
+          fi
       
       - name: 📤 Upload do Allure Report ZIP
         if: always()
@@ -109,5 +131,7 @@ jobs:
       - name: 📢 Mostrar URL do Report
         if: always()
         run: |
+          owner="${{ github.repository_owner }}"
+          repo="${{ github.event.repository.name }}"
           echo "✅ Allure Report publicado!"
-          echo "🔗 Acesse em: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "🔗 Acesse em: https://${owner}.github.io/${repo}/"
