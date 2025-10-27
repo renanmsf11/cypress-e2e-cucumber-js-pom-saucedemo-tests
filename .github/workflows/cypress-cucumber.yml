@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-# Permissões necessárias para o GitHub Pages
 permissions:
   contents: write
   pages: write
@@ -25,13 +24,13 @@ jobs:
         with:
           node-version: 20
       
-      - name: 📦 Instalar dependências (somente o necessário)
+      - name: 📦 Instalar dependências
         run: npm ci
       
       - name: ▶️ Rodar testes de API
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.{js,ts}"
       
-      - name: 📄 Publicar artefatos dos testes de API (screenshots e vídeos)
+      - name: 📄 Publicar artefatos dos testes de API
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -46,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: api-tests
     steps:
-      - name: 📥 Checkout do código (com histórico completo)
+      - name: 📥 Checkout do código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -62,7 +61,7 @@ jobs:
       - name: ✅ Verificar instalação do Cypress
         run: npx cypress verify
       
-      - name: ▶️ Rodar testes E2E (Cucumber)
+      - name: ▶️ Rodar testes E2E
         run: npx cypress run --spec "**/*.feature"
       
       - name: 🧩 Criar pasta de evidências
@@ -74,16 +73,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: cypress-e2e-artifacts
-          path: |        
+          path: |
             cypress/screenshots
             cypress/videos
           retention-days: 30
       
-      # 📊 Gerar e publicar Allure Report
       - name: 🧱 Gerar Allure Report
         if: always()
-        run: |
-          npx allure generate allure-results --clean -o allure-report
+        run: npx allure generate allure-results --clean -o allure-report
       
       - name: 📦 Compactar relatório Allure
         if: always()
@@ -110,35 +107,4 @@ jobs:
         if: always()
         run: |
           echo "✅ Allure Report publicado!"
-          echo "🔗 URL do Report: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-```
-
-## 🔧 Principais mudanças:
-
-1. ✅ **Adicionadas permissões** no topo do workflow
-2. ✅ **Setup Node.js** adicionado no job `api-tests` (estava faltando)
-3. ✅ **`force_orphan: true`** adicionado na publicação do GitHub Pages (evita histórico desnecessário)
-4. ✅ **`retention-days: 30`** adicionado aos artifacts (mantém por 30 dias)
-
-## 📋 Passos adicionais necessários:
-
-### 1. **Habilitar GitHub Pages no repositório:**
-
-1. Vá em: **Settings** → **Pages**
-2. Em **Source**, configure:
-   - **Branch:** `gh-pages`
-   - **Folder:** `/ (root)`
-3. Clique em **Save**
-
-### 2. **Verificar permissões do workflow:**
-
-1. Vá em: **Settings** → **Actions** → **General**
-2. Em **Workflow permissions**, selecione:
-   - ✅ **Read and write permissions**
-3. Salve as alterações
-
-### 3. **Execute o workflow novamente:**
-
-Após fazer essas configurações e commitar o novo workflow, execute novamente. O report estará disponível em:
-```
-https://renansfii.github.io/cypress-e2e-cucumber-js-pom-saucedemo-tests/
+          echo "🔗 Acesse em: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
