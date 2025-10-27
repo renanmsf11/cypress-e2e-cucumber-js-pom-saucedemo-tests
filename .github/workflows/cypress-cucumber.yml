@@ -54,11 +54,14 @@ jobs:
       - name: ▶️ Rodar testes E2E (Cucumber)
         run: npx cypress run --spec "**/*.feature"
 
+      - name: 🧩 Criar pasta de evidências
+        run: mkdir -p cypress/evidences
+
       - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-e2e-artifacts
-          path: |
+          path: |        
             cypress/screenshots
             cypress/videos
