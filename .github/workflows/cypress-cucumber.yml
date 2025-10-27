@@ -55,8 +55,8 @@ jobs:
         run: npx cypress run --spec "**/*.feature"
 
       - name: 🧩 Criar pasta de evidências
-        run: mkdir -p cypress/evidences
-
+        run: mkdir -p cypress/screenshots
+        
       - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
