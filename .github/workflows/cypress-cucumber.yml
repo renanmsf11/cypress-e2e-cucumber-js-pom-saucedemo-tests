@@ -6,21 +6,31 @@ on:
   pull_request:
     branches: [main]
 
+# Permissões necessárias para o GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   api-tests:
     name: 🔌 API Tests
     runs-on: ubuntu-latest
-
     steps:
       - name: 📥 Checkout do código
         uses: actions/checkout@v4
-
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
       - name: 📦 Instalar dependências (somente o necessário)
         run: npm ci
-
+      
       - name: ▶️ Rodar testes de API
         run: npx cypress run --spec "cypress/e2e/api/**/*.cy.{js,ts}"
-
+      
       - name: 📄 Publicar artefatos dos testes de API (screenshots e vídeos)
         if: always()
         uses: actions/upload-artifact@v4
@@ -29,35 +39,36 @@ jobs:
           path: |
             cypress/screenshots
             cypress/videos
+          retention-days: 30
 
   e2e-tests:
     name: 🧪 E2E Tests (Cucumber)
     runs-on: ubuntu-latest
     needs: api-tests
-
     steps:
       - name: 📥 Checkout do código (com histórico completo)
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Necessário para gh-pages funcionar
-
+          fetch-depth: 0
+      
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
+      
       - name: 📦 Instalar dependências
         run: npm ci
-
+      
       - name: ✅ Verificar instalação do Cypress
         run: npx cypress verify
-
+      
       - name: ▶️ Rodar testes E2E (Cucumber)
         run: npx cypress run --spec "**/*.feature"
-
+      
       - name: 🧩 Criar pasta de evidências
+        if: always()
         run: mkdir -p cypress/screenshots
-
+      
       - name: 📄 Publicar artefatos dos testes E2E
         if: always()
         uses: actions/upload-artifact@v4
@@ -66,24 +77,26 @@ jobs:
           path: |        
             cypress/screenshots
             cypress/videos
-
+          retention-days: 30
+      
       # 📊 Gerar e publicar Allure Report
       - name: 🧱 Gerar Allure Report
         if: always()
         run: |
           npx allure generate allure-results --clean -o allure-report
-
+      
       - name: 📦 Compactar relatório Allure
         if: always()
         run: zip -r allure-report.zip allure-report
-
+      
       - name: 📤 Upload do Allure Report ZIP
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report-zip
           path: allure-report.zip
-
+          retention-days: 30
+      
       - name: 🌐 Publicar Allure Report no GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
@@ -91,9 +104,41 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./allure-report
           publish_branch: gh-pages
-
+          force_orphan: true
+      
       - name: 📢 Mostrar URL do Report
         if: always()
         run: |
-           echo "✅ Allure Report publicado!"
-           echo "🔗 Acesse em: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "✅ Allure Report publicado!"
+          echo "🔗 URL do Report: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+```
+
+## 🔧 Principais mudanças:
+
+1. ✅ **Adicionadas permissões** no topo do workflow
+2. ✅ **Setup Node.js** adicionado no job `api-tests` (estava faltando)
+3. ✅ **`force_orphan: true`** adicionado na publicação do GitHub Pages (evita histórico desnecessário)
+4. ✅ **`retention-days: 30`** adicionado aos artifacts (mantém por 30 dias)
+
+## 📋 Passos adicionais necessários:
+
+### 1. **Habilitar GitHub Pages no repositório:**
+
+1. Vá em: **Settings** → **Pages**
+2. Em **Source**, configure:
+   - **Branch:** `gh-pages`
+   - **Folder:** `/ (root)`
+3. Clique em **Save**
+
+### 2. **Verificar permissões do workflow:**
+
+1. Vá em: **Settings** → **Actions** → **General**
+2. Em **Workflow permissions**, selecione:
+   - ✅ **Read and write permissions**
+3. Salve as alterações
+
+### 3. **Execute o workflow novamente:**
+
+Após fazer essas configurações e commitar o novo workflow, execute novamente. O report estará disponível em:
+```
+https://renansfii.github.io/cypress-e2e-cucumber-js-pom-saucedemo-tests/
