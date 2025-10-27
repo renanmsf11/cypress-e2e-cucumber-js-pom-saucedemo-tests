@@ -17,29 +17,25 @@ module.exports = defineConfig({
       // Suporte ao Cucumber
       on("file:preprocessor", cucumber());
 
-      // Suporte ao Allure Reports
+      // Suporte ao Allure Reports (Shelex)
       allureWriter(on, config);
 
       return config;
     },
 
-    // 📹 Configurações de vídeo e evidências
+    // 🎥 Evidências e artefatos
     video: true,
     screenshotOnRunFailure: true,
     screenshotsFolder: "cypress/screenshots",
     videosFolder: "cypress/videos",
 
-    // 📊 Configuração do Allure
-    reporter: "allure-mocha",
-    reporterOptions: {
-      resultsDir: "allure-results",
-    },
-
-    // 📘 Caminho dos step definitions do Cucumber
+    // 🧪 Configurações adicionais do ambiente
     env: {
       cucumber: {
         step_definitions: "cypress/support/step_definitions",
       },
+      allure: true, // habilita Allure plugin
+      allureResultsPath: "allure-results",
     },
   },
 });
