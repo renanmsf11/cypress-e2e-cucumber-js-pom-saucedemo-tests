@@ -34,6 +34,11 @@ module.exports = defineConfig({
       on('file:preprocessor', cucumber());
       return config;
     },
+    video: true, // 
+    screenshotsFolder: "cypress/screenshots",
+    videosFolder: "cypress/videos",
+    screenshotOnRunFailure: true, 
+
     // Configuração para indicar onde estão os step definitions
     env: {
       cucumber: {
